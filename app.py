@@ -1,3 +1,4 @@
+from typing import Text
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -22,16 +23,38 @@ class Window(Gtk.Window):
         self.input.connect("activate", self.add_todo)
         
         # add widgets 
-        fbox.pack_start(input_title, True, True, 7)
+        fbox.pack_start(input_title, True, True, 0)
         fbox.pack_start(self.input, True, True, 0)
-        fbox.pack_start(self.add_button, True, False, 7)
+        fbox.pack_start(self.add_button, True, False, 0)
         
+        # TASK TABLE
+        self.list_tasks = Gtk.ListStore(str, bool)
+        treeview = Gtk.TreeView(model=self.list_tasks)
         
+        # task column
+        renderer_tasks = Gtk.CellRendererText()
+        renderer_tasks.set_property("editable", True)
+        renderer_tasks.connect("edited", self.task_edited)
+        column_tasks = Gtk.TreeViewColumn("task", renderer_tasks, text=0)
+        treeview.append_column(column_tasks)
+        
+        renderer_complete = Gtk.CellRendererToggle()
+        renderer_complete.connect("toggled", self.complete_task)
+        column_complete = Gtk.TreeViewColumn("Complete", renderer_complete, active=1)
+        treeview.append_column(column_complete)
+        
+        self.main_box.pack_start(treeview, True, True, 0)
+    
+    def task_edited(self, widget, path, new_task):
+        self.list_tasks[path][0] = new_task
+    
+    def complete_task(self, widget, path):
+        del self.list_tasks[path]
+    
     def add_todo(self, widget):
         if self.input.get_text():
-            new_task = Gtk.Label(label=self.input.get_text())
-            self.main_box.pack_start(new_task, True, True, 0)
-            self.main_box.show_all()
+            new_task = [self.input.get_text(), False]
+            self.list_tasks.append(new_task)
             self.input.set_text('')
 
 if __name__ ==  '__main__':
