@@ -8,12 +8,19 @@ from gi.repository import Gtk
 class Window(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="ToDo")
+        self.set_default_size(500, 400)
+        self.set_border_width(10)
+        
+        # window title
+        header = Gtk.HeaderBar(title="Gtk ToDo app")
+        header.props.show_close_button = True
+        self.set_titlebar(header)
         
         self.main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.main_box)
         
         fbox = Gtk.Box(spacing=6)
-        self.main_box.pack_start(fbox, True, True, 10)
+        self.main_box.pack_start(fbox, False, False, 10)
         
         # Entry and labels
         input_title = Gtk.Label(label="Task")
@@ -23,10 +30,10 @@ class Window(Gtk.Window):
         self.input.connect("activate", self.add_todo)
         
         # add widgets 
-        fbox.pack_start(input_title, True, True, 0)
+        fbox.pack_start(input_title, False, True, 6)
         fbox.pack_start(self.input, True, True, 0)
-        fbox.pack_start(self.add_button, True, False, 0)
-        
+        fbox.pack_start(self.add_button, False, False, 0)
+     
         # TASK TABLE
         self.list_tasks = Gtk.ListStore(str, bool)
         treeview = Gtk.TreeView(model=self.list_tasks)
@@ -42,8 +49,8 @@ class Window(Gtk.Window):
         renderer_complete.connect("toggled", self.complete_task)
         column_complete = Gtk.TreeViewColumn("Complete", renderer_complete, active=1)
         treeview.append_column(column_complete)
-        
-        self.main_box.pack_start(treeview, True, True, 0)
+                
+        self.main_box.pack_start(treeview, False, True, 0)
     
     def task_edited(self, widget, path, new_task):
         self.list_tasks[path][0] = new_task
